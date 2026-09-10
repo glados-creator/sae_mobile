@@ -5,6 +5,7 @@ import 'package:sae_mobile/Model/Cuisine/CuisineRepository.dart';
 import 'package:sae_mobile/Model/Restaurant/Restaurant.dart';
 import 'package:sae_mobile/Model/Restaurant/restaurantRepository.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'restaurantRepository.mocks.dart';
 

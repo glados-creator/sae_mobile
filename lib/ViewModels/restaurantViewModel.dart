@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:sae_mobile/Model/Restaurant/Restaurant.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../Model/Restaurant/restaurantRepository.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../Model/Avis/avisRepository.dart';
 import '../Model/Avis/avis.dart';

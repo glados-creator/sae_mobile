@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:shared_preferences/shared_preferences.dart';  // Importer shared_preferences
 import '../Model/Connexion/inscrireModel.dart';
 
@@ -80,14 +82,14 @@ class _RegisterViewState extends State<RegisterView> {
                     children: [
                       FormBuilderTextField(
                         name: 'username',
-                        decoration: const InputDecoration(labelText: "Nom d'utilisateur"),
+                        decoration: const thingy.InputDecoration(labelText: "Nom d'utilisateur"),
                         validator: FormBuilderValidators.required(errorText: "Veuillez renseigner un nom d'utilisateur"),
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
                         name: 'password',
                         obscureText: _isPasswordHide,
-                        decoration: InputDecoration(
+                        decoration: thingy.InputDecoration(
                           labelText: 'Mot de passe',
                           suffixIcon: IconButton(
                             icon: Icon(_isPasswordHide ? Icons.visibility_off : Icons.visibility),
@@ -141,7 +143,7 @@ class _RegisterViewState extends State<RegisterView> {
                       FormBuilderTextField(
                         name: 'ConfirmPassword',
                         obscureText: _isConfirmHide,
-                        decoration: InputDecoration(
+                        decoration: thingy.InputDecoration(
                           labelText: 'Confirmation du mot de passe',
                           suffixIcon: IconButton(
                             icon: Icon(_isConfirmHide ? Icons.visibility_off : Icons.visibility),

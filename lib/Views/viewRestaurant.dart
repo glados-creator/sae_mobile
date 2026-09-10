@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:go_router/go_router.dart';
 import '../Model/Restaurant/Restaurant.dart'; // Assurez-vous que le chemin est correct.
 

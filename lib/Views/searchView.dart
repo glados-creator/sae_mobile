@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:sae_mobile/Views/viewRestaurant.dart';
@@ -30,9 +31,9 @@ class SearchViewState extends State<SearchView> {
                 children: [
                   FormBuilderTextField(
                     name: "search",
-                    decoration: InputDecoration(
+                    decoration: thingy.InputDecoration(
                       hintText: "Rechercher...",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.0)),
+                      border: thingy.OutlineInputBorder(borderRadius: BorderRadius.circular(15.0)),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -49,12 +50,12 @@ class SearchViewState extends State<SearchView> {
                           children: [
                             FormBuilderDropdown(
                               name: 'categorie',
-                              decoration: InputDecoration(
+                              decoration: thingy.InputDecoration(
                                 labelText: "Catégorie",
-                                border: OutlineInputBorder(),
+                                border: thingy.OutlineInputBorder(),
                               ),
                               items: ['','Restaurant', 'Café', 'Bar', 'Pub', 'Fast food'].map((option) {
-                                return DropdownMenuItem(
+                                return thingy.DropdownMenuItem(
                                   value: option,
                                   child: Text(option),
                                 );
@@ -64,10 +65,10 @@ class SearchViewState extends State<SearchView> {
                             ExpansionTile(
                                 title: Text("Cuisine"),
                                 initiallyExpanded: false, // Filtres fermés par défaut
-                                children:[ FormBuilderFilterChip(
+                                children:[ FormBuilderFilterChips(
                                   name: 'cuisine',
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
+                                  decoration: thingy.InputDecoration(
+                                    border: thingy.OutlineInputBorder(),
                                   ),
                                   options: context.watch<CuisineViewModel>().cuisines.map((cuisine) =>
                                       FormBuilderChipOption(value: cuisine, child: Text(cuisine))
@@ -83,11 +84,11 @@ class SearchViewState extends State<SearchView> {
                             ExpansionTile(
                               title: Text("Options"),
                               initiallyExpanded: false, // Filtres fermés par défaut
-                              children:[ FormBuilderFilterChip(
+                              children:[ FormBuilderFilterChips(
                                 name: 'options',
-                                decoration: InputDecoration(
+                                decoration: thingy.InputDecoration(
                                   //labelText: "Options",
-                                  border: OutlineInputBorder(),
+                                  border: thingy.OutlineInputBorder(),
                                 ),
                                 options: [
                                   FormBuilderChipOption(value: 'vegetarien', child: Text('Végétarien')),

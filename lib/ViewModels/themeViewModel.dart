@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import '../Model/themeRepository.dart';
 
 class ThemeViewModel extends ChangeNotifier {
@@ -29,7 +30,7 @@ class ThemeViewModel extends ChangeNotifier {
     primarySwatch: Colors.blue,
     scaffoldBackgroundColor: Colors.black,
     cardColor: Colors.grey[800],
-    cardTheme: CardTheme(color: Colors.grey[700]),
+    cardTheme: CardThemeData(color: Colors.grey[700]),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black,
       selectedItemColor: Colors.blue,
@@ -48,7 +49,7 @@ class ThemeViewModel extends ChangeNotifier {
     primarySwatch: Colors.blue,
     scaffoldBackgroundColor: Colors.white,
     cardColor: Colors.grey[200],
-    cardTheme: CardTheme(color: Colors.grey[600]),
+    cardTheme: CardThemeData(color: Colors.grey[600]),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: Colors.blue,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -134,9 +135,9 @@ Widget avisFormCard({
                 FormBuilderTextField(
                   name: 'commentaire',
                   initialValue: avis?.commentaire ?? '',
-                  decoration: const InputDecoration(
+                  decoration: const thingy.InputDecoration(
                     labelText: 'Commentaire',
-                    border: OutlineInputBorder(),
+                    border: thingy.OutlineInputBorder(),
                   ),
                 ),
 

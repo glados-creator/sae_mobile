@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../Model/Connexion/connexionModel.dart';
 import '../ViewModels/connexionViewModel.dart';
 
@@ -46,9 +48,9 @@ class _ConnectionViewState extends State<ConnectionView> {
                     // Champ pour le nom d'utilisateur
                     FormBuilderTextField(
                       name: 'username',
-                      decoration: const InputDecoration(
+                      decoration: const thingy.InputDecoration(
                         labelText: "Nom d'utilisateur",
-                        border: OutlineInputBorder(),
+                        border: thingy.OutlineInputBorder(),
                       ),
                       validator: FormBuilderValidators.required(errorText: "Veuillez renseigner votre nom d'utilisateur"),
                     ),
@@ -58,9 +60,9 @@ class _ConnectionViewState extends State<ConnectionView> {
                     FormBuilderTextField(
                       name: 'password',
                       obscureText: _isPasswordHide,
-                      decoration: InputDecoration(
+                      decoration: thingy.InputDecoration(
                         labelText: 'Mot de passe',
-                        border: const OutlineInputBorder(),
+                        border: const thingy.OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(_isPasswordHide ? Icons.visibility : Icons.visibility_off),
                           onPressed: () {

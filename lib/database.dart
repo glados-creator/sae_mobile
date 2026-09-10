@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -41,7 +43,7 @@ Future<Database> populateDatabase() async {
   final Database db = await initDatabase();
 
   // Charger le fichier JSON depuis les assets
-  String jsonString = await rootBundle.loadString('/restaurants.json');
+  String jsonString = await rootBundle.loadString('assets/restaurants.json');
   List<dynamic> jsonData = jsonDecode(jsonString);
 
   // Insérer les données dans la base de données
