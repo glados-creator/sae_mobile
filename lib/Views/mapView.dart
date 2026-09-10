@@ -33,6 +33,7 @@ class MapViewState extends State<MapView> {
 
       if (!serviceEnabled) {
         debugPrint("Location services are disabled.");
+        _useFallbackLocation();
         return;
       }
 
@@ -43,12 +44,14 @@ class MapViewState extends State<MapView> {
 
         if (permission == LocationPermission.denied) {
           debugPrint("Location permissions are denied.");
+          _useFallbackLocation();
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         debugPrint("Location permissions are permanently denied.");
+        _useFallbackLocation();
         return;
       }
 
@@ -75,7 +78,20 @@ class MapViewState extends State<MapView> {
       // Linux machine), permission plumbing failed, or any other platform
       // error. Fall back to the map's default center instead of crashing.
       debugPrint("Could not get user location: $e");
+      _useFallbackLocation();
     }
+  }
+
+  void _useFallbackLocation() {
+    if (!mounted) {
+      return;
+    }
+    // Hardcoded fallback — change to whatever city you want to demo with.
+    const fallback = LatLng(47.9011389, 1.9053056); // 47°54'04.1"N 1°54'19.1"E Orleans
+    setState(() {
+      userLocation = fallback;
+    });
+    _mapController.move(fallback, 13.0);
   }
 
   @override
@@ -178,7 +194,7 @@ class MapViewState extends State<MapView> {
                   options: MapOptions(
                     initialCenter:
                         userLocation ??
-                        const LatLng(48.8566, 2.3522),
+                        const LatLng(47.9011389, 1.9053056), // 47°54'04.1"N 1°54'19.1"E Orleans,
                     initialZoom: 13.0,
                     onPositionChanged:
                         (position, hasGesture) {
@@ -193,7 +209,7 @@ class MapViewState extends State<MapView> {
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: const ['a', 'b', 'c'],
-                      userAgentPackageName: 'com.example.sae_mobile', // dev.fleaflet.flutter_map.example
+                      userAgentPackageName: 'com.example.sae_mobile',
                       tileProvider:
                           CancellableNetworkTileProvider(),
                     ),
