@@ -1,13 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import '../Model/Connexion/connexionModel.dart';
+
 import '../ViewModels/connexionViewModel.dart';
 
 class ConnectionView extends StatefulWidget {
@@ -19,8 +17,9 @@ class ConnectionView extends StatefulWidget {
 
 class _ConnectionViewState extends State<ConnectionView> {
   final _formKey = GlobalKey<FormBuilderState>();
+
   bool _isPasswordHide = true;
-  bool _isLoading = false; // Pour indiquer si la requête est en cours
+  bool _isLoading = false;
 
   Future<String> getDatabasePath() async {
     return "${await getDatabasesPath()}/database.db";
@@ -35,110 +34,151 @@ class _ConnectionViewState extends State<ConnectionView> {
           child: Text("Se connecter"),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FormBuilder(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    // Champ pour le nom d'utilisateur
-                    FormBuilderTextField(
-                      name: 'username',
-                      decoration: const thingy.InputDecoration(
-                        labelText: "Nom d'utilisateur",
-                        border: thingy.OutlineInputBorder(),
-                      ),
-                      validator: FormBuilderValidators.required(errorText: "Veuillez renseigner votre nom d'utilisateur"),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Champ pour le mot de passe
-                    FormBuilderTextField(
-                      name: 'password',
-                      obscureText: _isPasswordHide,
-                      decoration: thingy.InputDecoration(
-                        labelText: 'Mot de passe',
-                        border: const thingy.OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(_isPasswordHide ? Icons.visibility : Icons.visibility_off),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordHide = !_isPasswordHide;
-                            });
-                          },
+      body: thingy.Material(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FormBuilder(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      FormBuilderTextField(
+                        name: 'username',
+                        decoration: const thingy.InputDecoration(
+                          labelText: "Nom d'utilisateur",
+                          border: thingy.OutlineInputBorder(),
+                        ),
+                        validator: FormBuilderValidators.required(
+                          errorText:
+                              "Veuillez renseigner votre nom d'utilisateur",
                         ),
                       ),
-                      validator: FormBuilderValidators.required(errorText: "Le champ est obligatoire"),
-                    ),
-                    const SizedBox(height: 20),
 
-                    // Bouton de connexion
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            final String dbPath = await getDatabasePath(); // Obtenir le chemin de la base de données
-                            if (_formKey.currentState!.validate()) {
+                      const SizedBox(height: 20),
+
+                      FormBuilderTextField(
+                        name: 'password',
+                        obscureText: _isPasswordHide,
+                        decoration: thingy.InputDecoration(
+                          labelText: 'Mot de passe',
+                          border: const thingy.OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordHide
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordHide = !_isPasswordHide;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: FormBuilderValidators.required(
+                          errorText: "Le champ est obligatoire",
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) {
+                                return;
+                              }
+
+                              final String dbPath =
+                                  await getDatabasePath();
+
                               setState(() {
                                 _isLoading = true;
                               });
-                              String username = _formKey.currentState?.fields['username']?.value;
-                              String password = _formKey.currentState?.fields['password']?.value;
 
-                              // Mise à jour des valeurs dans le ViewModel
-                              context.read<ConnexionViewModel>().setUsername(username);
-                              context.read<ConnexionViewModel>().setPassword(password);
+                              final String username = _formKey
+                                  .currentState!
+                                  .fields['username']!
+                                  .value;
 
-                              // Modèle de connexion
-                              LoginModel loginModel = LoginModel(username: username, password: password);
+                              final String password = _formKey
+                                  .currentState!
+                                  .fields['password']!
+                                  .value;
 
-                              // Appeler la méthode loginUser pour vérifier l'utilisateur
-                              bool isConnected = await context.read<ConnexionViewModel>().loginUser(context, dbPath);
+                              context
+                                  .read<ConnexionViewModel>()
+                                  .setUsername(username);
+
+                              context
+                                  .read<ConnexionViewModel>()
+                                  .setPassword(password);
+
+                              final bool isConnected = await context
+                                  .read<ConnexionViewModel>()
+                                  .loginUser(context, dbPath);
+
+                              if (!mounted) {
+                                return;
+                              }
 
                               setState(() {
                                 _isLoading = false;
                               });
 
                               if (isConnected) {
-                                // L'utilisateur est connecté avec succès
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Connexion réussie pour $username')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Connexion réussie pour $username',
+                                    ),
+                                  ),
                                 );
-                                // Rediriger vers la page principale ou autre page après connexion
+
                                 context.go('/home');
                               } else {
-                                // Erreur de connexion
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Nom d\'utilisateur ou mot de passe incorrect')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Nom d\'utilisateur ou mot de passe incorrect',
+                                    ),
+                                  ),
                                 );
                               }
-                            }
-                          },
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('Se connecter'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+                            },
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('Se connecter'),
+                          ),
+                        ],
+                      ),
 
-                    // Lien vers la page d'inscription
-                    TextButton(
-                      onPressed: () {
-                        // Redirection vers la page d'inscription
-                        context.go('/register');
-                      },
-                      child: const Text('Pas de compte ? Inscrivez-vous'),
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+
+                      TextButton(
+                        onPressed: () {
+                          context.go('/register');
+                        },
+                        child: const Text(
+                          'Pas de compte ? Inscrivez-vous',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -21,7 +21,8 @@ class SearchViewState extends State<SearchView> {
       appBar: AppBar(
         title: Text("IUTable"),
       ),
-      body: Column(
+      body: thingy.Material(
+        child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -128,6 +129,7 @@ class SearchViewState extends State<SearchView> {
           ),
           Expanded(child: ViewRestaurant(axis: Axis.vertical, restaurants: context.watch<RestaurantViewModel>().getCurrentRestaurants())),
         ],
+      ),
       ),
     );
   }

@@ -69,9 +69,10 @@ Widget avisFormCard({
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FormBuilder(
+        child: thingy.Material(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FormBuilder(
             key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,6 +186,7 @@ Widget avisFormCard({
             ),
           ),
         ),
+      ),
       );
     },
   );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_ui/material_ui.dart' as thingy;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -18,76 +17,96 @@ class MapView extends StatefulWidget {
 
 class MapViewState extends State<MapView> {
   String? selectedOsmid;
-  LatLng? userLocation; // User's geolocation
-  final MapController _mapController = MapController(); // Map controller
-  LatLngBounds? mapBounds; // Map bounds
+  LatLng? userLocation;
+  final MapController _mapController = MapController();
+  LatLngBounds? mapBounds;
 
   @override
   void initState() {
     super.initState();
-    _getUserLocation(); // Get user's geolocation on initialization
+    _getUserLocation();
   }
 
   Future<void> _getUserLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      debugPrint("Location services are disabled.");
-      return;
-    }
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        debugPrint("Location permissions are denied.");
+      if (!serviceEnabled) {
+        debugPrint("Location services are disabled.");
         return;
       }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.denied) {
+          debugPrint("Location permissions are denied.");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        debugPrint("Location permissions are permanently denied.");
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+        ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        userLocation = LatLng(
+          position.latitude,
+          position.longitude,
+        );
+      });
+
+      _mapController.move(userLocation!, 13.0);
+    } catch (e) {
+      // No location backend available (e.g. no GeoClue2 service on this
+      // Linux machine), permission plumbing failed, or any other platform
+      // error. Fall back to the map's default center instead of crashing.
+      debugPrint("Could not get user location: $e");
     }
-
-    if (permission == LocationPermission.deniedForever) {
-      debugPrint("Location permissions are permanently denied.");
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
-    );
-
-    setState(() {
-      userLocation = LatLng(position.latitude, position.longitude);
-    });
-
-    // Move the map to the user's location
-    _mapController.move(userLocation!, 13.0);
   }
 
   @override
   Widget build(BuildContext context) {
-    final restaurantViewModel = Provider.of<RestaurantViewModel>(context);
+    final restaurantViewModel =
+        Provider.of<RestaurantViewModel>(context);
 
-    // Get the restaurants within the current map bounds
     final restaurantsInBounds = mapBounds != null
         ? restaurantViewModel.getRestaurantsInBounds(
-      minLatitude: mapBounds!.south,
-      maxLatitude: mapBounds!.north,
-      minLongitude: mapBounds!.west,
-      maxLongitude: mapBounds!.east,
-    )
+            minLatitude: mapBounds!.south,
+            maxLatitude: mapBounds!.north,
+            minLongitude: mapBounds!.west,
+            maxLongitude: mapBounds!.east,
+          )
         : [];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Map with Restaurants")),
+      appBar: AppBar(
+        title: const Text("Map with Restaurants"),
+      ),
       body: Row(
         children: [
-          // Left ListView
           Container(
-            width: MediaQuery.of(context).size.width * 0.1, // 10% of the screen width
+            width: MediaQuery.of(context).size.width * 0.1,
             color: Colors.white,
             child: ListView.builder(
               itemCount: restaurantsInBounds.length,
               itemBuilder: (context, index) {
                 final restaurant = restaurantsInBounds[index];
-                final isSelected = restaurant.osmid == selectedOsmid;
+                final isSelected =
+                    restaurant.osmid == selectedOsmid;
 
                 return Card(
                   elevation: isSelected ? 4 : 1,
@@ -96,13 +115,16 @@ class MapViewState extends State<MapView> {
                       ListTile(
                         title: Text(restaurant.nomRestaurant),
                         subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(restaurant.type),
                             const SizedBox(height: 4),
                             RatingBarIndicator(
-                              rating: restaurant.etoiles.toDouble(),
-                              itemBuilder: (context, index) => const Icon(
+                              rating:
+                                  restaurant.etoiles.toDouble(),
+                              itemBuilder: (context, index) =>
+                                  const Icon(
                                 Icons.star,
                                 color: Colors.amber,
                               ),
@@ -113,23 +135,26 @@ class MapViewState extends State<MapView> {
                           ],
                         ),
                         onTap: () {
-                          // Update the selected restaurant when tapped in the list
                           setState(() {
                             selectedOsmid = restaurant.osmid;
                           });
-                          debugPrint("Selected ${restaurant.nomRestaurant}");
+
+                          debugPrint(
+                            "Selected ${restaurant.nomRestaurant}",
+                          );
                         },
                       ),
+
                       if (isSelected)
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ElevatedButton(
                             onPressed: () {
-                              // Navigate to the restaurant's page
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => RestaurantDetailView(
+                                  builder: (context) =>
+                                      RestaurantDetailView(
                                     restaurant: restaurant,
                                   ),
                                 ),
@@ -144,30 +169,37 @@ class MapViewState extends State<MapView> {
               },
             ),
           ),
-          // Right Map
+
           Expanded(
             child: Stack(
               children: [
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: userLocation ?? LatLng(48.8566, 2.3522),
+                    initialCenter:
+                        userLocation ??
+                        const LatLng(48.8566, 2.3522),
                     initialZoom: 13.0,
-                    onPositionChanged: (position, hasGesture) {
+                    onPositionChanged:
+                        (position, hasGesture) {
                       setState(() {
-                        mapBounds = position.visibleBounds;
+                        mapBounds =
+                            position.visibleBounds;
                       });
                     },
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
-                      tileProvider: CancellableNetworkTileProvider(),
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: const ['a', 'b', 'c'],
+                      userAgentPackageName: 'com.example.sae_mobile', // dev.fleaflet.flutter_map.example
+                      tileProvider:
+                          CancellableNetworkTileProvider(),
                     ),
+
                     MarkerLayer(
                       markers: [
-                        // User location marker
                         if (userLocation != null)
                           Marker(
                             point: userLocation!,
@@ -177,46 +209,64 @@ class MapViewState extends State<MapView> {
                               size: 40.0,
                             ),
                           ),
-                        // Restaurant markers
-                        ...restaurantsInBounds.map((restaurant) {
-                          return Marker(
-                            point: LatLng(
-                              double.parse(restaurant.latitude ?? "0"),
-                              double.parse(restaurant.longitude ?? "0"),
-                            ),
-                            child: Tooltip(
-                              message: restaurant.nomRestaurant,
-                              child: IconButton(
-                                iconSize: restaurant.osmid == selectedOsmid ? 40.0 : 30.0,
-                                icon: Icon(
-                                  Icons.location_pin,
-                                  color: restaurant.osmid == selectedOsmid
-                                      ? Colors.red
-                                      : Colors.grey,
+
+                        ...restaurantsInBounds.map(
+                          (restaurant) {
+                            return Marker(
+                              point: LatLng(
+                                double.parse(
+                                  restaurant.latitude ?? "0",
                                 ),
-                                onPressed: () {
-                                  // Update the selected restaurant
-                                  setState(() {
-                                    selectedOsmid = restaurant.osmid;
-                                  });
-                                  debugPrint("Selected ${restaurant.nomRestaurant}");
-                                },
+                                double.parse(
+                                  restaurant.longitude ?? "0",
+                                ),
                               ),
-                            ),
-                          );
-                        })
+                              child: Tooltip(
+                                message:
+                                    restaurant.nomRestaurant,
+                                child: IconButton(
+                                  iconSize:
+                                      restaurant.osmid ==
+                                              selectedOsmid
+                                          ? 40.0
+                                          : 30.0,
+                                  icon: Icon(
+                                    Icons.location_pin,
+                                    color: restaurant.osmid ==
+                                            selectedOsmid
+                                        ? Colors.red
+                                        : Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedOsmid =
+                                          restaurant.osmid;
+                                    });
+
+                                    debugPrint(
+                                      "Selected ${restaurant.nomRestaurant}",
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ],
                 ),
-                // Reset position button
+
                 Positioned(
                   bottom: 16,
                   right: 16,
                   child: FloatingActionButton(
                     onPressed: () {
                       if (userLocation != null) {
-                        _mapController.move(userLocation!, 13.0);
+                        _mapController.move(
+                          userLocation!,
+                          13.0,
+                        );
                       }
                     },
                     child: const Icon(Icons.my_location),

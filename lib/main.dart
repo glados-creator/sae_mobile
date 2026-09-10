@@ -96,6 +96,7 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp.router(
             title: 'SAE Mobile',
             theme: themeViewModel.currentTheme,
+            localizationsDelegates: thingy.GlobalMaterialLocalizations.delegates,
             routerConfig: _router!,
           );
         },

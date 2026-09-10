@@ -69,116 +69,121 @@ class _RegisterViewState extends State<RegisterView> {
       appBar: AppBar(
         title: const Text("S'enregistrer"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FormBuilder(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      FormBuilderTextField(
-                        name: 'username',
-                        decoration: const thingy.InputDecoration(labelText: "Nom d'utilisateur"),
-                        validator: FormBuilderValidators.required(errorText: "Veuillez renseigner un nom d'utilisateur"),
-                      ),
-                      const SizedBox(height: 20),
-                      FormBuilderTextField(
-                        name: 'password',
-                        obscureText: _isPasswordHide,
-                        decoration: thingy.InputDecoration(
-                          labelText: 'Mot de passe',
-                          suffixIcon: IconButton(
-                            icon: Icon(_isPasswordHide ? Icons.visibility_off : Icons.visibility),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordHide = !_isPasswordHide;
-                              });
-                            },
+      // Wrapped in thingy.Material so the material_ui TextField widgets used
+      // internally by FormBuilderTextField (v11) can find a Material ancestor.
+      // Flutter's Scaffold only provides its own Material, not material_ui's.
+      body: thingy.Material(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FormBuilder(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        FormBuilderTextField(
+                          name: 'username',
+                          decoration: const thingy.InputDecoration(labelText: "Nom d'utilisateur"),
+                          validator: FormBuilderValidators.required(errorText: "Veuillez renseigner un nom d'utilisateur"),
+                        ),
+                        const SizedBox(height: 20),
+                        FormBuilderTextField(
+                          name: 'password',
+                          obscureText: _isPasswordHide,
+                          decoration: thingy.InputDecoration(
+                            labelText: 'Mot de passe',
+                            suffixIcon: IconButton(
+                              icon: Icon(_isPasswordHide ? Icons.visibility_off : Icons.visibility),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordHide = !_isPasswordHide;
+                                });
+                              },
+                            ),
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              _passwordStrength = _registerModel.getPasswordStrength(value ?? '');
+                            });
+                          },
+                          validator: (password) {
+                            if (password == null || password.isEmpty) {
+                              return "Le mot de passe ne doit pas être vide";
+                            }
+                            if (_registerModel.getPasswordStrength(password) < 0.3) {
+                              return "Mot de passe trop faible";
+                            }
+                            return null;
+                          },
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            _passwordStrength = _registerModel.getPasswordStrength(value ?? '');
-                          });
-                        },
-                        validator: (password) {
-                          if (password == null || password.isEmpty) {
-                            return "Le mot de passe ne doit pas être vide";
-                          }
-                          if (_registerModel.getPasswordStrength(password) < 0.3) {
-                            return "Mot de passe trop faible";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      if (_passwordStrength > 0) ...[
-                        LinearProgressIndicator(
-                          value: _passwordStrength,
-                          backgroundColor: Colors.grey[300],
-                          color: _passwordStrength < 0.3
-                              ? Colors.red
-                              : (_passwordStrength < 0.7 ? Colors.orange : Colors.green),
-                          minHeight: 8,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _passwordStrength < 0.3
-                              ? "Mot de passe faible"
-                              : (_passwordStrength < 0.7 ? "Mot de passe moyen" : "Mot de passe fort"),
-                          style: TextStyle(
+                        const SizedBox(height: 10),
+                        if (_passwordStrength > 0) ...[
+                          LinearProgressIndicator(
+                            value: _passwordStrength,
+                            backgroundColor: Colors.grey[300],
                             color: _passwordStrength < 0.3
                                 ? Colors.red
                                 : (_passwordStrength < 0.7 ? Colors.orange : Colors.green),
-                            fontWeight: FontWeight.bold,
+                            minHeight: 8,
                           ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _passwordStrength < 0.3
+                                ? "Mot de passe faible"
+                                : (_passwordStrength < 0.7 ? "Mot de passe moyen" : "Mot de passe fort"),
+                            style: TextStyle(
+                              color: _passwordStrength < 0.3
+                                  ? Colors.red
+                                  : (_passwordStrength < 0.7 ? Colors.orange : Colors.green),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 30),
+                        ],
+                        FormBuilderTextField(
+                          name: 'ConfirmPassword',
+                          obscureText: _isConfirmHide,
+                          decoration: thingy.InputDecoration(
+                            labelText: 'Confirmation du mot de passe',
+                            suffixIcon: IconButton(
+                              icon: Icon(_isConfirmHide ? Icons.visibility_off : Icons.visibility),
+                              onPressed: () {
+                                setState(() {
+                                  _isConfirmHide = !_isConfirmHide;
+                                });
+                              },
+                            ),
+                          ),
+                          validator: (confirm) {
+                            String password = _formKey.currentState?.fields['password']?.value ?? '';
+                            if (confirm == null || confirm.isEmpty) {
+                              return "Le champ ne doit pas être vide";
+                            }
+                            if (password != confirm) {
+                              return "Le mot de passe n'est pas identique";
+                            }
+                            return null;
+                          },
                         ),
-                      ] else ...[
-                        const SizedBox(height: 30),
                       ],
-                      FormBuilderTextField(
-                        name: 'ConfirmPassword',
-                        obscureText: _isConfirmHide,
-                        decoration: thingy.InputDecoration(
-                          labelText: 'Confirmation du mot de passe',
-                          suffixIcon: IconButton(
-                            icon: Icon(_isConfirmHide ? Icons.visibility_off : Icons.visibility),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmHide = !_isConfirmHide;
-                              });
-                            },
-                          ),
-                        ),
-                        validator: (confirm) {
-                          String password = _formKey.currentState?.fields['password']?.value ?? '';
-                          if (confirm == null || confirm.isEmpty) {
-                            return "Le champ ne doit pas être vide";
-                          }
-                          if (password != confirm) {
-                            return "Le mot de passe n'est pas identique";
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _registerAndNavigate,  // Appel de la méthode ici
-                  child: const Text('S\'enregistrer'),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () => context.go('/connexion'),
-                  child: const Text("Déjà un compte ? Se connecter"),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _registerAndNavigate,  // Appel de la méthode ici
+                    child: const Text('S\'enregistrer'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () => context.go('/connexion'),
+                    child: const Text("Déjà un compte ? Se connecter"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
